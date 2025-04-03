@@ -1,0 +1,35 @@
+{
+  "name": "flava",
+  "version": "1.0.0",
+  "description": "Personal Project for an app that tries to make weight loss a community",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M-Chukwukelu/flava.git"
+  },
+  "keywords": [],
+  "author": "Marvellous Chukwukelu",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/M-Chukwukelu/flava/issues"
+  },
+  "homepage": "https://github.com/M-Chukwukelu/flava#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.6.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
