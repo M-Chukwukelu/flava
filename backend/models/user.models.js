@@ -56,6 +56,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    likedPosts: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Post",
+				default: [], // Default to an empty array to represent no liked posts
+			},
+		],
   }, 
   {timestamps: true}
 );
