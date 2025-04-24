@@ -15,11 +15,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    password: {
-      type: String,
-      required: true,
-      minLength: 8,
-    },
     email: {
       type: String,
       required: true,
@@ -63,6 +58,12 @@ const userSchema = new mongoose.Schema(
 				default: [], // Default to an empty array to represent no liked posts
 			},
 		],
+    supabaseId: {
+      type: String,
+      unique: true,
+      sparse: true,       // allow existing docs without this field
+      default: null       // avoid validation errors on old docs
+    },
   }, 
   {timestamps: true}
 );

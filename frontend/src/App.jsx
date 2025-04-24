@@ -11,7 +11,7 @@ import Sidebar from "./components/common/Sidebar";
 import RightPanel from "./components/common/RightPanel";
 
 import { Toaster } from "react-hot-toast";
-// import { useQuery } from "@tanstack/react-query";
+//import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 
 function App() {
@@ -27,6 +27,7 @@ function App() {
 				<Route path='/profile/:username' element={<ProfilePage />} />
 			</Routes>
 			<RightPanel />
+			<Toaster />
 		</div>
 	);
 }

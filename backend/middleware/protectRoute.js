@@ -1,5 +1,6 @@
 import User from "../models/user.models.js";
-import jwt from "jsonwebtoken";
+import { supabaseAdmin } from '../lib/supabaseAdmin.js'
+
 
 export const protectRoute = async (req, res, next) => {
   try {
@@ -10,19 +11,19 @@ export const protectRoute = async (req, res, next) => {
     }
 
     // Verify the token and get the user ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    const { data: { user: supaUser }, error } =
+      await supabaseAdmin.auth.getUser(token)                   
+    if (error || !supaUser) {
+      return res.status(401).json({ message: "Invalid token" })
     }
 
-    const user = await User.findById(decoded.userId).select("-password"); // Find the user by ID and exclude password
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const mongoUser = await User.findOne({ supabaseId: supaUser.id }).select('-password')
+    if (!mongoUser) {
+      return res.status(404).json({ message: "User not found" })
     }
 
-    req.user = user; // Attach the user to the request object for later use
-    next(); // Call the next middleware or route handler
-    
+    req.user = mongoUser
+    next()   
   } catch (error) {
     console.log("Error in protectRoute controller", error.message); // Log the error for debugging
     res.status(500).json({ message: "Internal server error" });

@@ -1,137 +1,137 @@
 import User from "../models/user.models.js";
 import bcrypt from "bcryptjs";
-import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
+import { generateTokenAndSetCookie } from "../utils/generateToken.js";
+import { supabaseAdmin }      from '../lib/supabaseAdmin.js'
+import { syncSupabaseUser }   from '../utils/syncUser.js'
 
 // Sign up Controller
 export const signup = async (req, res) => {
   try {
-    const { firstName, lastName, username, email, password } = req.body;
+    const { firstName, lastName, username, email, password } = req.body
 
-    // Checking if Username is available
-    const existingUser = await User.findOne({ username });
-		if (existingUser) {
-			return res.status(400).json({ error: "This username is already taken" });
-		}
+    if (!firstName || !lastName || !username || !email || !password) {
+      return res.status(400).json({ error: "All fields are required." })
+    }
 
-    // Checking Email Format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
-			return res.status(400).json({ error: "The email format is invalid!" });
-		}
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Email format is invalid." })
+    }
 
-    // Check if email is taken
-    const existingEmail = await User.findOne({ email });
-		if (existingEmail) {
-			return res.status(400).json({ error: "This email is already taken" });
-		}
+    const existingUsername = await User.findOne({ username })
+    if (existingUsername) {
+      return res.status(400).json({ error: "That username is already taken." })
+    }
 
-    // Check if password length is appropriate
-		if (password.length < 8) {
-			return res.status(400).json({ error: "Password must be at least 8 characters long" });
-		}
+    if (password.length < 8) {
+      return res.status(400).json({ error: "Password must be at least 8 characters long." })
+    }
 
-    // Obviously, we don't want user passwords stored as plain text
-    const salt = await bcrypt.genSalt(10); // Get some salt
-		const hashedPassword = await bcrypt.hash(password, salt); // Hash it
+    const {
+      data: { user: supaUser, session },
+      error: supaErr
+    } = await supabaseAdmin.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { firstName, lastName, username }
+      }
+    })
+    if (supaErr) {
+      return res.status(400).json({ error: supaErr.message })
+    }
 
-    // Create them
-    const newUser = new User({
-			firstName,
-      lastName,
-			username,
-			email,
-			password: hashedPassword,
-		});
+    const mongoUser = await syncSupabaseUser(supaUser)
 
-    // Save them
-		if (newUser) {
-			generateTokenAndSetCookie(newUser._id, res);
-			await newUser.save();
+    res.cookie('jwt', session.access_token, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge:   session.expires_in * 1000
+    })
 
-			res.status(201).json({
-				_id: newUser._id,
-				firstName: newUser.firstName,
-        lastName: newUser.lastName,
-				username: newUser.username,
-				email: newUser.email,
-				followers: newUser.followers,
-				following: newUser.following,
-				profileImg: newUser.profileImg,
-				coverImg: newUser.coverImg,
-			});
-		} else {
-			res.status(400).json({ error: "Invalid user data" });
-		}
-  } catch (error) {
-    console.log("Error in signup controller", error.message); // Log the error for debugging
-		res.status(500).json({ error: "Internal Server Error" });
+    res.status(201).json({
+      _id:        mongoUser._id,
+      firstName:  mongoUser.firstName,
+      lastName:   mongoUser.lastName,
+      username:   mongoUser.username,
+      email:      mongoUser.email,
+      followers:  mongoUser.followers,
+      following:  mongoUser.following,
+      profileImg: mongoUser.profileImg,
+      coverImg:   mongoUser.coverImg,
+    })
+
+  } catch (err) {
+    console.error('Signup error:', err)
+    res.status(500).json({ error: "Internal Server Error" })
   }
-};
-
+}
 
 // Login Controller
 export const login = async (req, res) => {
   try {
-    const { identifier, password } = req.body;
+    const { identifier, password } = req.body
 
-    // Check if identifer is an email
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-    
-    // Based on the identifier type, find the user
-    // If it's an email, find by email, else find by username
-    const user = await User.findOne(
-      isEmail ? { email: identifier } : { username: identifier }
-    );
-
-    // Check if password is correct
-    // Compare given password with hashed password in the database or empty string if field is empty
-    const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
-
-    // If user not found or password is incorrect, send error response
-    if (!user || !isPasswordCorrect) {
-      return res.status(400).json({ error: "Invalid username or password." });
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
+    let emailForLogin = identifier
+    if (!isEmail) {
+      const mongoUser = await User.findOne({ username: identifier })
+      if (!mongoUser) {
+        return res.status(400).json({ error: "Invalid username or password." })
+      }
+      emailForLogin = mongoUser.email
     }
 
-    generateTokenAndSetCookie(user._id, res); // Generate token and set cookie
+    const { data: { user: supaUser, session }, error: supaErr } =
+      await supabaseAdmin.auth.signInWithPassword({
+        email:    emailForLogin,
+        password
+      })                                                           
+    if (supaErr || !session) {
+      // e.g. wrong password or no such email
+      return res.status(400).json({ error: supaErr?.message || "Invalid username or password." })
+    }                                                              
 
-    // Send user data in response apart from password obviously
+    const mongoUser = await syncSupabaseUser(supaUser)
+
+    res.cookie('jwt', session.access_token, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge:   session.expires_in * 1000
+    })
+
     res.status(200).json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
-      followers: user.followers,
-      following: user.following,
-      profileImg: user.profileImg,
-      coverImg: user.coverImg,
-    });
-    
-  } catch (error) {
-    console.log("Error in logim controller", error.message); // Log the error for debugging
-		res.status(500).json({ error: "Internal Server Error" });
+      _id:        mongoUser._id,
+      firstName:  mongoUser.firstName,
+      lastName:   mongoUser.lastName,
+      username:   mongoUser.username,
+      email:      mongoUser.email,
+      followers:  mongoUser.followers,
+      following:  mongoUser.following,
+      profileImg: mongoUser.profileImg,
+      coverImg:   mongoUser.coverImg,
+    })
+  } catch (err) {
+    console.error("Login error:", err)
+    res.status(500).json({ error: "Internal Server Error" })
   }
-};
+}
 
-// Logout Controller
 export const logout = async (req, res) => {
-	try {
-		res.cookie("jwt", "", { maxAge: 0 }); 
-		res.status(200).json({ message: "Logged out successfully" });
-	} catch (error) {
-		console.log("Error in logout controller", error.message);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
-};
+  try {
+    res.cookie('jwt', '', { maxAge: 0, httpOnly: true })
+    res.status(200).json({ message: "Logged out successfully" })
+  } catch (err) {
+    console.error("Logout error:", err)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+}
 
 
 // Get Me Controller
-export const getMe = async (req, res) => {
-	try {
-		const user = await User.findById(req.user._id).select("-password");
-		res.status(200).json(user);
-	} catch (error) {
-		console.log("Error in getMe controller", error.message);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
-};
+export const getMe = (req, res) => {
+  // protectRoute already loaded req.user
+  res.status(200).json(req.user)
+}

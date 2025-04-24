@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/M-Chukwukelu/flava#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "cookie-parser": "^1.4.7",
