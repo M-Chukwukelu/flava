@@ -1,6 +1,4 @@
 import User from "../models/user.models.js";
-import bcrypt from "bcryptjs";
-import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 import { supabaseAdmin }      from '../lib/supabaseAdmin.js'
 import { syncSupabaseUser }   from '../utils/syncUser.js'
 
@@ -41,25 +39,9 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: supaErr.message })
     }
 
-    const mongoUser = await syncSupabaseUser(supaUser)
-
-    res.cookie('jwt', session.access_token, {
-      httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge:   session.expires_in * 1000
-    })
-
-    res.status(201).json({
-      _id:        mongoUser._id,
-      firstName:  mongoUser.firstName,
-      lastName:   mongoUser.lastName,
-      username:   mongoUser.username,
-      email:      mongoUser.email,
-      followers:  mongoUser.followers,
-      following:  mongoUser.following,
-      profileImg: mongoUser.profileImg,
-      coverImg:   mongoUser.coverImg,
+    await syncSupabaseUser(supaUser)
+    return res.status(200).json({
+      message: 'Signup successful! Please check your email and confirm your account before logging in.'
     })
 
   } catch (err) {
@@ -85,11 +67,10 @@ export const login = async (req, res) => {
 
     const { data: { user: supaUser, session }, error: supaErr } =
       await supabaseAdmin.auth.signInWithPassword({
-        email:    emailForLogin,
+        email: emailForLogin,
         password
       })                                                           
     if (supaErr || !session) {
-      // e.g. wrong password or no such email
       return res.status(400).json({ error: supaErr?.message || "Invalid username or password." })
     }                                                              
 
@@ -114,15 +95,14 @@ export const login = async (req, res) => {
       coverImg:   mongoUser.coverImg,
     })
   } catch (err) {
-    console.error("Login error:", err)
     res.status(500).json({ error: "Internal Server Error" })
   }
 }
 
 export const logout = async (req, res) => {
   try {
-    res.cookie('jwt', '', { maxAge: 0, httpOnly: true })
-    res.status(200).json({ message: "Logged out successfully" })
+    res.cookie("jwt", "", { maxAge: 0 });
+    return res.status(200).json({ message: 'Logged out successfully' })
   } catch (err) {
     console.error("Logout error:", err)
     res.status(500).json({ error: "Internal Server Error" })

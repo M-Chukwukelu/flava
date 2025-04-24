@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 import FlavaSVG from "../../../components/svgs/flava";
+import GoogleLogo from "../../../components/svgs/google.svg";
 
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
@@ -10,6 +11,7 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 
 import { useMutation, useQueryClient} from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import {supabase} from "../../../lib/supabase-client.js";
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
@@ -58,6 +60,15 @@ const SignUpPage = () => {
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
+
+	const handleGoogle = () => {
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+  }
 
 
 	return (
@@ -131,6 +142,16 @@ const SignUpPage = () => {
 					</button>
 					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
+				<div className="flex justify-center mt-6">
+					<button
+						type="button"
+						onClick={handleGoogle}
+						className="btn rounded-full btn-outline w-full flex items-center justify-center gap-2"
+					>
+						<img src= {GoogleLogo} alt="Google" className="h-5" />
+						Sign Up with Google
+					</button>
+				</div>
 				<div className='flex flex-col lg:w-2/3 gap-2 mt-4'>
 					<p className='text-black text-lg'>Already enjoying the flavour?</p>
 					<Link to='/login'>
