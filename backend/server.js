@@ -25,7 +25,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json()); //Middleware
+app.use(express.json({limit:"5mb"})); //Middleware
+// Note from Marvellous: The limit is set to 5mb to allow larger image uploads. Adjust as needed.
+// However, be cautious with large limits as it can lead to performance issues and allow DoS attacks.
 app.use(express.urlencoded({ extended: true })); //To parse form data while testing with Postman
 app.use(cookieParser()); //Middleware to parse cookies
 
