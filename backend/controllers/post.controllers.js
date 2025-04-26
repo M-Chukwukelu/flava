@@ -60,6 +60,13 @@ export const deletePost = async (req, res) => {
 			await cloudinary.uploader.destroy(imgId);
 		}
 
+		if (Array.isArray(post.likes) && post.likes.length > 0) {
+      await User.updateMany(
+        { _id: { $in: likes } },
+        { $pull: { likedPosts: post._id } }
+      );
+    }
+
 		await Post.findByIdAndDelete(req.params.id);
 		if (isComment && parentId) {
 			await Post.findByIdAndUpdate(parentId, { $inc: { commentCount: -1 } });
@@ -91,7 +98,6 @@ export const likeUnlikePost = async (req, res) => {
 			// Unlike post
 			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } }); // Remove the user from the likes array
 			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } }); // Remove the post from the user's likedPosts array
-
 			const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
 			res.status(200).json(updatedLikes);
 		} else {

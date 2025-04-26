@@ -13,7 +13,6 @@ function CommentsList({ parentId }) {
         credentials: "include",
       });
       const data = await res.json();
-      console.log("Fetched comments response:", data);
       if (!res.ok) {
         throw new Error("Failed to fetch comments");
       }

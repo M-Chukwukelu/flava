@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
-const EditProfileModal = () => {
+const EditProfileModal = ({authUser}) => {
 	const [formData, setFormData] = useState({
 		firstName: "",
     lastName: "",
 		username: "",
+		profileName: "",
 		email: "",
 		bio: "",
 		link: "",
@@ -12,9 +14,27 @@ const EditProfileModal = () => {
 		currentPassword: "",
 	});
 
+	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
+
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
+
+	useEffect(() => {
+		if (authUser) {
+			setFormData({
+				firstName: authUser.firstName,
+				lastName: authUser.lastName,
+				profileName: authUser.profileName,
+				username: authUser.username,
+				email: authUser.email,
+				bio: authUser.bio,
+				link: authUser.link,
+				newPassword: "",
+				currentPassword: "",
+			});
+		}
+	}, [authUser]);
 
 	return (
 		<>
@@ -31,13 +51,13 @@ const EditProfileModal = () => {
 						className='flex flex-col gap-4'
 						onSubmit={(e) => {
 							e.preventDefault();
-							alert("Profile updated successfully");
+							updateProfile(formData);
 						}}
 					>
 						<div className='flex flex-wrap gap-2'>
 							<input
 								type='text'
-								placeholder='Full Name'
+								placeholder='First Name'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
 								value={formData.firstName}
 								name='firstName'
@@ -52,6 +72,14 @@ const EditProfileModal = () => {
 								onChange={handleInputChange}
 							/>
 						</div>
+						<input
+							type='text'
+							placeholder='Profile Name'
+							className='flex-1 input border border-gray-700 rounded p-2 input-md'
+							value={formData.profileName}
+							name='profileName'
+							onChange={handleInputChange}
+						/>
 						<div className='flex flex-wrap gap-2'>
 							<input
 								type='email'
@@ -103,7 +131,9 @@ const EditProfileModal = () => {
 							name='link'
 							onChange={handleInputChange}
 						/>
-						<button className='btn btn-primary rounded-full btn-sm text-white'>Update</button>
+						<button className='btn btn-primary rounded-full btn-sm text-white'>
+							{isUpdatingProfile ? "Updating..." : "Update"}
+						</button>
 					</form>
 				</div>
 				<form method='dialog' className='modal-backdrop'>
