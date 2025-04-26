@@ -109,7 +109,7 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-	const { fullName, email, username, currentPassword, newPassword, bio, link } = req.body;
+	const { firstName, lastName, email, profileName, username, currentPassword, newPassword, bio, link } = req.body;
 	let { profileImg, coverImg } = req.body;
 
 	const userId = req.user._id;
@@ -164,7 +164,9 @@ export const updateUser = async (req, res) => {
 		}
   
     // Update the user fields with the new values or keep the original ones if not provided
-		user.fullName = fullName || user.fullName;
+		user.firstName = firstName || user.firstName;
+		user.lastName = lastName || user.lastName;
+		user.profileName = profileName || user.profileName;
 		user.email = email || user.email;
 		user.username = username || user.username;
 		user.bio = bio || user.bio;

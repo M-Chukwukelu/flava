@@ -7,6 +7,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    profileName: {
+      type: String,
+    },
     firstName: {
       type: String,
       required: true,

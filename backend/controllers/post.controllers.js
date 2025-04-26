@@ -5,7 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = async (req, res) => {
 	try {
-		const { text } = req.body;
+		const { text, isComment, parentId } = req.body;
 		let { img } = req.body;
 		const userId = req.user._id.toString();
 
@@ -25,9 +25,14 @@ export const createPost = async (req, res) => {
 			user: userId,
 			text,
 			img,
+			isComment,
+			parentId,
 		});
 
 		await newPost.save();
+		if (isComment) {
+			await Post.findByIdAndUpdate(parentId, { $inc: { commentCount: 1 } });
+		}
 		res.status(201).json(newPost);
 	} catch (error) {
 		res.status(500).json({ error: "Internal server error" });
@@ -42,6 +47,7 @@ export const deletePost = async (req, res) => {
 		if (!post) {
 			return res.status(404).json({ error: "Post not found" });
 		}
+		const { isComment, parentId } = post;
 
 		// Check that the current user is the owner of the post
 		if (post.user.toString() !== req.user._id.toString()) {
@@ -55,41 +61,13 @@ export const deletePost = async (req, res) => {
 		}
 
 		await Post.findByIdAndDelete(req.params.id);
+		if (isComment && parentId) {
+			await Post.findByIdAndUpdate(parentId, { $inc: { commentCount: -1 } });
+		}
 
 		res.status(200).json({ message: "Post deleted successfully" });
 	} catch (error) {
 		console.log("Error in deletePost controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-};
-
-export const commentOnPost = async (req, res) => {
-	try {
-		const { text } = req.body;
-		const postId = req.params.id;
-		const userId = req.user._id;
-
-		// Text only for now
-		if (!text) {
-			return res.status(400).json({ error: "Text field is required" });
-		}
-		const post = await Post.findById(postId);
-
-		if (!post) {
-			return res.status(404).json({ error: "Post not found" });
-		}
-
-
-		// This is the comment
-		const comment = { user: userId, text };
-
-		// Push it into the database
-		post.comments.push(comment);
-		await post.save();
-
-		res.status(200).json(post);
-	} catch (error) {
-		console.log("Error in commentOnPost controller: ", error);
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
@@ -145,14 +123,10 @@ export const likeUnlikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
 	try {
-		const posts = await Post.find() // Get all posts
+		const posts = await Post.find({ isComment: false }) // Get all posts that are not comments
 			.sort({ createdAt: -1 }) // Sort by most recent (latest) first
 			.populate({ // Give me the user who created the post but don't give me the password
 				path: "user",
-				select: "-password",
-			})
-			.populate({ // Give me the user who created the comment but don't give me the password
-				path: "comments.user",
 				select: "-password",
 			});
 
@@ -178,10 +152,6 @@ export const getLikedPosts = async (req, res) => {
 			.populate({
 				path: "user",
 				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
 			});
 
 		res.status(200).json(likedPosts);
@@ -204,10 +174,6 @@ export const getFollowingPosts = async (req, res) => {
 			.populate({
 				path: "user",
 				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
 			});
 
 		res.status(200).json(feedPosts);
@@ -229,10 +195,6 @@ export const getUserPosts = async (req, res) => {
 			.populate({
 				path: "user",
 				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
 			});
 
 		res.status(200).json(posts);
@@ -242,3 +204,26 @@ export const getUserPosts = async (req, res) => {
 	}
 };
 
+export const getPostById = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate({ path: 'user', select: '-password' });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    return res.status(200).json(post);
+  } catch (err) {
+    console.error('getPostById error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getCommentsByParent = async (req, res) => {
+  const { parentId } = req.params;
+  const comments = await Post.find({ isComment: true, parentId })
+    .sort({ createdAt: 1 })
+    .populate("user", "-password")
+
+		return res.json(Array.isArray(comments) ? comments : []);
+};

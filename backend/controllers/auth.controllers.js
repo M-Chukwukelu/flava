@@ -88,6 +88,7 @@ export const login = async (req, res) => {
       firstName:  mongoUser.firstName,
       lastName:   mongoUser.lastName,
       username:   mongoUser.username,
+      profileName: mongoUser.profileName,
       email:      mongoUser.email,
       followers:  mongoUser.followers,
       following:  mongoUser.following,

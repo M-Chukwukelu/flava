@@ -1,7 +1,6 @@
 import express from 'express';
 import { protectRoute } from '../middleware/protectRoute.js';
 import {
-	commentOnPost,
 	createPost,
 	deletePost,
 	getAllPosts,
@@ -9,6 +8,8 @@ import {
 	getLikedPosts,
 	getUserPosts,
 	likeUnlikePost,
+	getPostById,
+	getCommentsByParent,
 } from "../controllers/post.controllers.js";
 
 const router = express.Router();
@@ -19,7 +20,9 @@ router.get("/likes/:id", protectRoute, getLikedPosts); // Get liked posts of a u
 router.get("/user/:username", protectRoute, getUserPosts); // Get posts of a specific user
 router.post("/create", protectRoute, createPost); // Create a new post
 router.post("/like/:id", protectRoute, likeUnlikePost); // Like or unlike a post
-router.post("/comment/:id", protectRoute, commentOnPost); // Comment on a post
 router.delete("/:id", protectRoute, deletePost); // Delete a post
+router.get("/comments/:parentId", protectRoute, getCommentsByParent); //Get comments
+router.get("/:id",protectRoute, getPostById); //Get post's page
+
 
 export default router;

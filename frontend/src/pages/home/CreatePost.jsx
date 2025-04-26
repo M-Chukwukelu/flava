@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { useAuthUser } from "../../hooks/useAuthUser";
 
-const CreatePost = () => {
+const CreatePost = ({ isComment = false, parentId = null }) => {
 	const [text, setText] = useState("");
 	const [img, setImg] = useState(null);
 	const imgRef = useRef(null);
@@ -25,12 +25,15 @@ const CreatePost = () => {
 					body: JSON.stringify({
 						text,
 						img,
+						isComment,
+						parentId,
 					}),
 				});
 				const data = await res.json();
 				if (!res.ok) {
-					throw new Error(data.message || "Could not create post.");
+					throw new Error(data.message || (isComment ? "Could not create comment." : "Could not create post."));
 				}
+				return data;
 			} catch (error) {
 				throw new Error(error.message);
 			}
@@ -38,8 +41,12 @@ const CreatePost = () => {
 		onSuccess: () => {
 			setText("");
 			setImg(null);
-			toast.success("Post created successfully");
+			toast.success((isComment ? "Comment posted!" : "Post created!"));
+		
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			queryClient.invalidateQueries({ queryKey: ["comments", parentId] });
+	
+			
 		},
 	})
 
@@ -69,7 +76,7 @@ const CreatePost = () => {
 			<form className='flex flex-col gap-2 w-full' onSubmit={handleSubmit}>
 				<textarea
 					className='textarea w-full p-0 text-lg resize-none border-none focus:outline-none  border-gray-800'
-					placeholder='Is something flavourful happening?'
+					placeholder={isComment ? 'Want to add some spice?':'Is something flavourful happening?'}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 				/>

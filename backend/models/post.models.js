@@ -19,19 +19,19 @@ const postSchema = new mongoose.Schema(
 				ref: "User",
 			},
 		],
-		comments: [
-			{
-				text: {
-					type: String,
-					required: true,
-				},
-				user: {
-					type: mongoose.Schema.Types.ObjectId,
-					ref: "User",
-					required: true,
-				},
-			},
-		],
+		isComment: { 
+			type: Boolean, 
+			default: false 
+		},
+		parentId:  { 
+			type: mongoose.Schema.Types.ObjectId, 
+			ref: "Post", 
+			default: null 
+		},
+		commentCount: { 
+			type: Number, 
+			default: 0 
+		},
 	},
 	{ timestamps: true }
 );
