@@ -80,7 +80,7 @@ export const login = async (req, res) => {
       httpOnly: true,
       secure:   process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   session.expires_in * 1000
+      maxAge:   session.expires_in * 1000 * 60 * 60 * 24 * 7
     })
 
     res.status(200).json({
@@ -115,4 +115,48 @@ export const logout = async (req, res) => {
 export const getMe = (req, res) => {
   // protectRoute already loaded req.user
   res.status(200).json(req.user)
+}
+
+export const oauthCallback = async (req, res) => {
+  try {
+    const { access_token } = req.body;
+    if (!access_token) {
+      return res.status(400).json({ error: "Missing access token" });
+    }
+    
+    const {
+      data: { user: supaUser },
+      error: getErr
+    } = await supabaseAdmin.auth.getUser(access_token);
+
+    if (getErr || !supaUser) {
+      return res
+        .status(400)
+        .json({ error: getErr?.message || "Invalid OAuth token" });
+    }
+
+    const mongoUser = await syncSupabaseUser(supaUser);
+
+    res.cookie("jwt", access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    });
+    return res.json({
+      _id:         mongoUser._id,
+      firstName:   mongoUser.firstName,
+      lastName:    mongoUser.lastName,
+      username:    mongoUser.username,
+      email:       mongoUser.email,
+      profileName: mongoUser.profileName,
+      profileImg:  mongoUser.profileImg,
+      coverImg:    mongoUser.coverImg,
+      followers:   mongoUser.followers,
+      following:   mongoUser.following,
+    });
+  } catch (err) {
+    console.error("OAuth callback error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }

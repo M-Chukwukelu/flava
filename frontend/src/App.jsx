@@ -6,6 +6,7 @@ import SignUpPage from "./pages/auth/signup/SignUpPage";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostPage from "./pages/PostPage";
+import AuthCallback from './pages/auth/AuthCallback'
 
 import Sidebar from "./components/common/Sidebar";
 import RightPanel from "./components/common/RightPanel";
@@ -51,6 +52,7 @@ function App() {
 				<Route path='/' element={authUser ? <HomePage />: <Navigate to="/login"/>} />
 				<Route path='/signup' element={!authUser ? <SignUpPage />: <Navigate to="/"/>} />
 				<Route path='/login' element={!authUser ? <LoginPage />: <Navigate to="/"/>} />
+				<Route path="/auth/callback" element={<AuthCallback />} />
 				<Route path='/notifications' element={authUser ? <NotificationPage />: <Navigate to="/login"/>} />
 				<Route path='/profile/:username' element={authUser ? <ProfilePage />: <Navigate to="/login"/>} />
 				<Route path="/posts/:postId" element={authUser ? <PostPage /> : <Navigate to="/login"/>} />
