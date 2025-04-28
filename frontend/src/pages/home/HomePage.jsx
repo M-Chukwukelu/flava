@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Posts from "../../components/common/Posts";
+import Posts from "../../components/common/post/Posts";
 import CreatePost from "./CreatePost";
 
 const HomePage = () => {
@@ -8,7 +8,7 @@ const HomePage = () => {
 
 	return (
 		<>
-			<div className='flex-[4_4_0] mr-auto border-r border-gray-700 min-h-screen'>
+			<div className='flex-[4_4_0] mr-auto border-r border-gray-700 min-h-screen relative h-screen'>
 				{/* Header */}
 				<div className='flex w-full border-b border-gray-700'>
 					<div
@@ -32,12 +32,12 @@ const HomePage = () => {
 						)}
 					</div>
 				</div>
-
-				{/*  CREATE POST INPUT */}
-				<CreatePost />
-
-				{/* POSTS */}
-				<Posts feedType={feedType}/>
+				<div className="h-full overflow-auto pb-24">
+					<Posts feedType={feedType} />
+				</div>
+				<div className="sticky bottom-0 left-0 w-full border-t bg-white">
+					<CreatePost />
+				</div>
 			</div>
 		</>
 	);

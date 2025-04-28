@@ -62,7 +62,7 @@ export const deletePost = async (req, res) => {
 
 		if (Array.isArray(post.likes) && post.likes.length > 0) {
       await User.updateMany(
-        { _id: { $in: likes } },
+        { _id: { $in: post.likes } },
         { $pull: { likedPosts: post._id } }
       );
     }

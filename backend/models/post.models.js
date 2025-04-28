@@ -32,6 +32,11 @@ const postSchema = new mongoose.Schema(
 			type: Number, 
 			default: 0 
 		},
+		recipe: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Recipe",
+			default: null
+		}
 	},
 	{ timestamps: true }
 );

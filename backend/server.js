@@ -9,6 +9,10 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js"; 
 import notificationRoutes from "./routes/notification.routes.js";
+import ingredientRoutes from './routes/ingredient.routes.js';
+import recipeRoutes from './routes/recipe.routes.js';
+import userRecipeRoutes from './routes/user.recipes.routes.js';
+import pantryRoutes from './routes/pantry.routes.js';
 
 // Database connection
 import connectMongoDB from "./db/connectMongoDB.js";
@@ -36,6 +40,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use('/api/ingredients', ingredientRoutes);
+app.use('/api/recipes', recipeRoutes);
+app.use('/api/user-recipes', userRecipeRoutes);
+app.use('/api/pantry', pantryRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

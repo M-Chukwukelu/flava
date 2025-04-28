@@ -1,14 +1,13 @@
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
-import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import LoadingSpinner from "./LoadingSpinner";
-import { useAuthUser } from "../../hooks/useAuthUser";
-import {formatPostDate} from "../../utils/date/formatDate.js";
+import LoadingSpinner from "../LoadingSpinner.jsx";
+import { useAuthUser } from "../../../hooks/useAuthUser";
+import {formatPostDate} from "../../../utils/date/formatDate.js";
 
 const Post = ({ post }) => {
 	const navigate = useNavigate();
@@ -167,9 +166,6 @@ const Post = ({ post }) => {
 									{post.likes.length}
 								</span>
 							</div>
-						</div>
-						<div className='flex w-1/3 justify-end gap-2 items-center'>
-							<FaRegBookmark className='w-4 h-4 text-slate-500 cursor-pointer' />
 						</div>
 					</div>
 				</div>

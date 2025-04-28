@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import Posts from "../../components/common/Posts";
+import Posts from "../../components/common/post/Posts.jsx";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 

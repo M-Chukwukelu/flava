@@ -58,14 +58,13 @@ const userSchema = new mongoose.Schema(
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "Post",
-				default: [], // Default to an empty array to represent no liked posts
+				default: [],
 			},
 		],
     supabaseId: {
       type: String,
       unique: true,
-      sparse: true,       // allow existing docs without this field
-      default: null       // avoid validation errors on old docs
+      default: null
     },
   }, 
   {timestamps: true}

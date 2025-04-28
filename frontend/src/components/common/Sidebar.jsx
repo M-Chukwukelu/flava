@@ -2,7 +2,8 @@ import FlavaSVG from "../svgs/flava";
 
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
+
+import { FaUser, FaBookmark, FaUtensils, FaListAlt, FaClipboardList, FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,8 +48,8 @@ const Sidebar = () => {
 							to='/'
 							className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
 						>
-							<MdHomeFilled className='w-8 h-8' />
-							<span className='text-lg hidden md:block'>Home</span>
+							<MdHomeFilled className='w-5 h-5' />
+							<span className='text-base hidden md:block'>Home</span>
 						</Link>
 					</li>
 					<li className='flex justify-center md:justify-start'>
@@ -56,8 +57,8 @@ const Sidebar = () => {
 							to='/notifications'
 							className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
 						>
-							<IoNotifications className='w-6 h-6' />
-							<span className='text-lg hidden md:block'>Notifications</span>
+							<IoNotifications className='w-5 h-5' />
+							<span className='text-base hidden md:block'>Notifications</span>
 						</Link>
 					</li>
 
@@ -66,8 +67,56 @@ const Sidebar = () => {
 							to={`/profile/${authUser?.username}`}
 							className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
 						>
-							<FaUser className='w-6 h-6' />
-							<span className='text-lg hidden md:block'>Profile</span>
+							<FaUser className='w-5 h-5' />
+							<span className='text-base hidden md:block'>Profile</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/recipes" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaUtensils className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>Recipes</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/recipes/saved" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaBookmark className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>Saved Recipes</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/recipes/mine" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaListAlt className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>My Recipes</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/meal-planner" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaClipboardList className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>Meal Planner</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/shopping-list" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaShoppingCart className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>Shopping List</span>
+						</Link>
+					</li>
+					<li>
+						<Link 
+						to="/pantry" 
+						className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'>
+							<FaClipboardList className='w-5 h-5'/> 
+							<span className='text-base hidden md:block'>Pantry</span>
 						</Link>
 					</li>
 					<li className='flex justify-center md:justify-start'>
@@ -78,8 +127,8 @@ const Sidebar = () => {
 							}}
 							className='flex gap-3 items-center hover:bg-neutral transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
 						>
-							<BiLogOut className='w-6 h-6' />
-							<span className='text-lg hidden md:block'>Logout</span>
+							<BiLogOut className='w-5 h-5' />
+							<span className='text-base hidden md:block'>Logout</span>
 						</button>
 					</li>
 				</ul>

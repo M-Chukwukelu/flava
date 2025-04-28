@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import Post from "../components/common/Post.jsx";
-import PostSkeleton from "../components/skeletons/PostSkeleton.jsx";
-import CreatePost from "./home/CreatePost.jsx";
+import Post from "../../components/common/post/Post.jsx";
+import PostSkeleton from "../../components/skeletons/PostSkeleton.jsx";
+import CreatePost from "../home/CreatePost.jsx";
 
 // A small helper component to fetch and render comments
 function CommentsList({ parentId }) {
